@@ -1,0 +1,29 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x ** 2
+
+# Define the derivative of the function
+def df(x):
+    return 2 * x
+
+# Mini-batch Gradient Descent Algorithm
+def mini_batch_gradient_descent(starting_point, learning_rate, num_iterations, batch_size):
+    x = starting_point
+    for _ in range(num_iterations):
+        # Create a mini-batch of random samples
+        mini_batch = np.random.uniform(-10, 10, batch_size)  # Randomly sample a batch
+        gradient = np.mean(df(mini_batch))  # Compute the mean gradient of the mini-batch
+        x -= learning_rate * gradient  # Update x based on the mean gradient
+    return x
+
+# Parameters
+starting_point = 10  # Starting point for the descent
+learning_rate = 0.1   # Learning rate
+num_iterations = 100   # Number of iterations
+batch_size = 10        # Size of the mini-batch
+
+# Run Mini-batch Gradient Descent
+minimum = mini_batch_gradient_descent(starting_point, learning_rate, num_iterations, batch_size)
+print(f'The minimum point is at x = {minimum} and f(x) = {f(minimum)}')
