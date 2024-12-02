@@ -1,0 +1,47 @@
+import numpy as np
+
+class InteriorPoint:
+    def __init__(self, A, b, c, tol=1e-8, max_iter=100):
+        self.A = A
+        self.b = b
+        self.c = c
+        self.tol = tol
+        self.max_iter = max_iter
+
+    def optimize(self):
+        m, n = self.A.shape
+        x = np.ones(n)  # Initial feasible point
+        s = np.ones(m)  # Slack variables
+        mu = 1.0  # Barrier parameter
+
+        for iteration in range(self.max_iter):
+            # Calculate residuals
+            r_b = self.b - self.A @ x
+            r_c = self.c - self.A.T @ s
+            r_mu = np.diag(s) @ x - mu * np.ones(m)
+
+            # Check for convergence
+            if np.linalg.norm(r_b) < self.tol and np.linalg.norm(r_c) < self.tol and np.linalg.norm(r_mu) < self.tol:
+                break
+
+            # Formulate the KKT system
+            KKT_matrix = np.block([
+                [np.zeros((n, n)), self.A.T, np.eye(n)],
+                [self.A, np.zeros((m, m)), np.zeros((m, n))],
+                [np.diag(s), np.zeros((m, m)), np.zeros((m, n))]
+            ])
+
+            KKT_rhs = np.concatenate([-r_b, -r_c, -r_mu])
+
+            # Solve the KKT system
+            delta = np.linalg.solve(KKT_matrix, KKT_rhs)
+
+            # Update variables
+            dx = delta[:n]
+            ds = delta[n:n+m]
+            dt = delta[n+m:]
+
+            alpha = 1.0  # Step size
+            x += alpha * dx
+            s += alpha * ds
+            mu *= 0.9  # Decrease barrier parameter
