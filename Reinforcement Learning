@@ -1,0 +1,64 @@
+import numpy as np
+import random
+
+class Environment:
+    def __init__(self):
+        self.state_space = [0, 1, 2]  # Example states
+        self.action_space = [0, 1]  # Example actions
+        self.state = 0  # Initial state
+
+    def reset(self):
+        self.state = 0  # Reset to initial state
+        return self.state
+
+    def step(self, action):
+        if action == 0:
+            reward = 1  # Reward for action 0
+            self.state = (self.state + 1) % len(self.state_space)
+        else:
+            reward = -1  # Reward for action 1
+            self.state = (self.state - 1) % len(self.state_space)
+        return self.state, reward
+
+class QLearningAgent:
+    def __init__(self, env):
+        self.env = env
+        self.q_table = np.zeros((len(env.state_space), len(env.action_space)))
+        self.learning_rate = 0.1
+        self.discount_factor = 0.9
+        self.exploration_rate = 1.0
+        self.exploration_decay = 0.99
+        self.min_exploration_rate = 0.01
+
+    def choose_action(self, state):
+        if random.uniform(0, 1) < self.exploration_rate:
+            return random.choice(self.env.action_space)  # Explore
+        return np.argmax(self.q_table[state])  # Exploit
+
+    def learn(self, state, action, reward, next_state):
+        best_next_action = np.argmax(self.q_table[next_state])
+        td_target = reward + self.discount_factor * self.q_table[next_state][best_next_action]
+        td_delta = td_target - self.q_table[state][action]
+        self.q_table[state][action] += self.learning_rate * td_delta
+
+    def update_exploration_rate(self):
+        self.exploration_rate = max(self.min_exploration_rate, self.exploration_rate * self.exploration_decay)
+
+# Main loop
+if __name__ == '__main__':
+    env = Environment()
+    agent = QLearningAgent(env)
+
+    for episode in range(1000):  # Number of episodes
+        state = env.reset()
+        done = False
+
+        while not done:
+            action = agent.choose_action(state)
+            next_state, reward = env.step(action)
+            agent.learn(state, action, reward, next_state)
+            state = next_state
+            if state == 0:  # Example condition to end the episode
+                done = True
+
+        agent.update_exploration_rate()
