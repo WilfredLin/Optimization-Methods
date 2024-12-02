@@ -1,0 +1,40 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x[0]**2 + x[1]**2  # Example function
+
+# Particle Swarm Optimization Method
+def particle_swarm_optimization(num_particles=30, max_iterations=100):
+    # Initialize particles' positions and velocities
+    positions = np.random.uniform(-10, 10, (num_particles, 2))
+    velocities = np.random.uniform(-1, 1, (num_particles, 2))
+    
+    # Initialize personal best positions and global best position
+    personal_best_positions = np.copy(positions)
+    personal_best_scores = np.array([f(p) for p in positions])
+    global_best_position = personal_best_positions[np.argmin(personal_best_scores)]
+    
+    for iteration in range(max_iterations):
+        for i in range(num_particles):
+            # Update velocities
+            r1, r2 = np.random.rand(2)
+            velocities[i] = (velocities[i] 
+                             + r1 * (personal_best_positions[i] - positions[i]) 
+                             + r2 * (global_best_position - positions[i]))
+            
+            # Update positions
+            positions[i] += velocities[i]
+            
+            # Update personal best
+            current_score = f(positions[i])
+            if current_score < personal_best_scores[i]:
+                personal_best_scores[i] = current_score
+                personal_best_positions[i] = positions[i]
+                
+        # Update global best
+        current_global_best_index = np.argmin(personal_best_scores)
+        if personal_best_scores[current_global_best_index] < f(global_best_position):
+            global_best_position = personal_best_positions[current_global_best_index]
+    
+    return global_best_position  # Return the best point found (minimum point)
