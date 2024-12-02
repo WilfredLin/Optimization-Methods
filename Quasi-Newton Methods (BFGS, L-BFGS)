@@ -1,0 +1,99 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x ** 2
+
+# Define the gradient of the function
+def df(x):
+    return 2 * x
+
+# BFGS Quasi-Newton Method
+def bfgs(starting_point, num_iterations):
+    x = np.array(starting_point, dtype=float)
+    n = len(x)
+    H = np.eye(n)  # Initial Hessian approximation
+
+    for _ in range(num_iterations):
+        gradient = df(x)  # Compute the gradient at x
+        p = -H @ gradient  # Search direction
+
+        # Line search (using a simple fixed step size for demonstration)
+        alpha = 0.1
+        x_new = x + alpha * p
+
+        s = x_new - x  # Step
+        y = df(x_new) - gradient  # Gradient difference
+
+        # Update Hessian approximation
+        rho = 1.0 / (y @ s)
+        H = (np.eye(n) - rho * np.outer(s, y)) @ H @ (np.eye(n) - rho * np.outer(y, s)) + rho * np.outer(s, s)
+
+        x = x_new  # Update x
+
+    return x
+
+# L-BFGS Method
+def lbfgs(starting_point, num_iterations, m=10):
+    x = np.array(starting_point, dtype=float)
+    n = len(x)
+    s_list = []
+    y_list = []
+    rho_list = []
+
+    for _ in range(num_iterations):
+        gradient = df(x)  # Compute the gradient at x
+        if len(s_list) > 0:
+            q = gradient
+            alpha = []
+
+            # Two-loop recursion for L-BFGS
+            for i in range(len(s_list) - 1, -1, -1):
+                alpha_i = rho_list[i] * (s_list[i] @ q)
+                alpha.append(alpha_i)
+                q -= alpha_i * y_list[i]
+
+            # Approximate the inverse Hessian
+            gamma = 1.0 / (y_list[-1] @ s_list[-1])
+            r = gamma * q
+
+            for i in range(len(s_list)):
+                beta = rho_list[i] * (y_list[i] @ r)
+                r += s_list[i] * (alpha[-1 - i] - beta)
+
+            p = -r  # Search direction
+        else:
+            p = -gradient  # If no previous steps, use steepest descent
+
+        # Line search (using a simple fixed step size for demonstration)
+        alpha = 0.1
+        x_new = x + alpha * p
+
+        # Store the step and gradient
+        s = x_new - x
+        y = df(x_new) - gradient
+
+        if len(s_list) >= m:
+            s_list.pop(0)
+            y_list.pop(0)
+            rho_list.pop(0)
+
+        s_list.append(s)
+        y_list.append(y)
+        rho_list.append(1.0 / (y @ s))
+
+        x = x_new  # Update x
+
+    return x
+
+# Parameters
+starting_point = [10]  # Starting point for the descent
+num_iterations = 100  # Number of iterations
+
+# Run BFGS Method
+minimum_bfgs = bfgs(starting_point, num_iterations)
+print(f'BFGS minimum point is at x = {minimum_bfgs} and f(x) = {f(minimum_bfgs)}')
+
+# Run L-BFGS Method
+minimum_lbfgs = lbfgs(starting_point, num_iterations)
+print(f'L-BFGS minimum point is at x = {minimum_lbfgs}
