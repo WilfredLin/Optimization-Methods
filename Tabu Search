@@ -1,0 +1,51 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x[0]**2 + x[1]**2  # Example function
+
+# Tabu Search Method
+def tabu_search(max_iterations=100, tabu_tenure=5):
+    # Initialize the starting solution randomly
+    current_solution = np.random.uniform(-10, 10, 2)
+    best_solution = current_solution.copy()
+    best_score = f(current_solution)
+    
+    # Initialize the tabu list
+    tabu_list = []
+    
+    for iteration in range(max_iterations):
+        neighborhood = []
+        
+        # Generate neighborhood solutions
+        for delta in np.random.uniform(-1, 1, (10, 2)):
+            neighbor = current_solution + delta
+            neighborhood.append(neighbor)
+        
+        # Evaluate neighborhood solutions
+        neighborhood_scores = [f(neighbor) for neighbor in neighborhood]
+        
+        # Select the best non-tabu solution
+        best_neighbor = None
+        best_neighbor_score = float('inf')
+        
+        for i, neighbor in enumerate(neighborhood):
+            if neighbor.tolist() not in tabu_list and neighborhood_scores[i] < best_neighbor_score:
+                best_neighbor = neighbor
+                best_neighbor_score = neighborhood_scores[i]
+        
+        # Update current solution
+        if best_neighbor is not None:
+            current_solution = best_neighbor
+            
+            # Update tabu list
+            tabu_list.append(current_solution.tolist())
+            if len(tabu_list) > tabu_tenure:
+                tabu_list.pop(0)
+            
+            # Update best solution
+            if best_neighbor_score < best_score:
+                best_score = best_neighbor_score
+                best_solution = current_solution
+    
+    return best_solution  # Return the best point found (minimum point)
