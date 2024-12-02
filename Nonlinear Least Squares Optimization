@@ -1,0 +1,20 @@
+import numpy as np
+from scipy.optimize import curve_fit
+
+# Define a model function to fit
+
+def model_function(x, a, b, c):
+    return a * np.exp(-b * x) + c
+
+# Generate synthetic data
+np.random.seed(0)
+x_data = np.linspace(0, 4, 50)
+y_data = model_function(x_data, 2.5, 1.3, 0.5) + np.random.normal(size=x_data.size)
+
+# Perform nonlinear least squares optimization
+initial_guess = [1.0, 1.0, 1.0]
+params, covariance = curve_fit(model_function, x_data, y_data, p0=initial_guess)
+
+# Display the results
+print("Fitted parameters:")
+print(f"a: {params[0]}, b: {params[1]}, c: {params[2]}")
