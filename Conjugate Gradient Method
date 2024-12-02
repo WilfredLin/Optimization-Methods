@@ -1,0 +1,15 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x.T @ A @ x + b.T @ x
+
+# Define the gradient of the function
+def df(x):
+    return 2 * A @ x + b
+
+# Conjugate Gradient Method
+def conjugate_gradient(starting_point, num_iterations):
+    x = np.array(starting_point, dtype=float)
+    r = df(x)  # Initial residual
+    p = -r 
