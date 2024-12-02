@@ -1,0 +1,28 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x[0]**2 + x[1]**2  # Example function
+
+# Hill Climbing Method
+def hill_climbing(max_iterations=100):
+    # Initialize the starting solution randomly
+    current_solution = np.random.uniform(-10, 10, 2)
+    best_solution = current_solution.copy()
+    best_score = f(current_solution)
+    
+    for iteration in range(max_iterations):
+        # Generate a neighborhood solution
+        delta = np.random.uniform(-1, 1, 2)
+        neighbor = current_solution + delta
+        
+        # Evaluate the neighbor solution
+        neighbor_score = f(neighbor)
+        
+        # Update current solution if neighbor is better
+        if neighbor_score < best_score:
+            current_solution = neighbor
+            best_score = neighbor_score
+            best_solution = current_solution
+    
+    return best_solution  # Return the best point found (minimum point)
