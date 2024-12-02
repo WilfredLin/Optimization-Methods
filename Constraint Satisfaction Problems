@@ -1,0 +1,31 @@
+import numpy as np
+from ortools.sat.python import cp_model
+
+# Create the model
+model = cp_model.CpModel()
+
+# Define variables
+# Let's say we have 3 variables with domain 0 to 2
+x1 = model.NewIntVar(0, 2, 'x1')
+x2 = model.NewIntVar(0, 2, 'x2')
+x3 = model.NewIntVar(0, 2, 'x3')
+
+# Add constraints
+# Example constraints: x1 + x2 + x3 = 3
+model.Add(x1 + x2 + x3 == 3)
+
+# Example constraint: x1 != x2
+model.Add(x1 != x2)
+
+# Create a solver and solve the model
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+# Check the result
+if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+    print('Solution:')
+    print('x1 =', solver.Value(x1))
+    print('x2 =', solver.Value(x2))
+    print('x3 =', solver.Value(x3))
+else:
+    print('No solution found.')
