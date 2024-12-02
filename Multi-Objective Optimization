@@ -1,0 +1,33 @@
+def multi_objective_optimization(objectives, A, b):
+    from scipy.optimize import linprog
+    import numpy as np
+
+    num_vars = len(objectives[0])
+    bounds = [(0, None) for _ in range(num_vars)]
+    
+    # Store results for each objective
+    results = []
+
+    for i, c in enumerate(objectives):
+        # Solve the linear programming problem for each objective
+        res = linprog(-np.array(c), A_ub=A, b_ub=b, bounds=bounds, method='highs')
+        
+        if res.success:
+            x = res.x
+            results.append((-res.fun, x))  # Store the objective value and solution
+            print(f"Optimal solution for objective {i + 1} found:", x)
+            print(f"Optimal value for objective {i + 1}:", -res.fun)
+        else:
+            print(f"No feasible solution found for objective {i + 1}.")
+            results.append((None, None))
+
+    return results
+
+# Example usage
+objectives = [
+    [3, 2],  # Objective 1 coefficients
+    [1, 4]   # Objective 2 coefficients
+]
+A = [[1, 1], [2, 1], [1, 2]]  # Coefficients of the constraints
+b = [4, 6, 6]  # Right-hand side of the constraints
+multi_objective_optimization(objectives, A, b)
