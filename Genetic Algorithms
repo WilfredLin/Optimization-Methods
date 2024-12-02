@@ -1,0 +1,40 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x[0]**2 + x[1]**2  # Example function
+
+# Genetic Algorithm Method
+def genetic_algorithm(population_size=100, generations=100, mutation_rate=0.01):
+    # Initialize a population of random solutions
+    population = np.random.uniform(-10, 10, (population_size, 2))
+    
+    for generation in range(generations):
+        # Evaluate fitness of the population
+        fitness = np.array([1 / (f(individual) + 1e-6) for individual in population])  # Avoid division by zero
+        
+        # Select parents based on fitness
+        parents_indices = np.random.choice(range(population_size), size=population_size, p=fitness/fitness.sum())
+        parents = population[parents_indices]
+        
+        # Crossover: create a new generation
+        offspring = []
+        for i in range(0, population_size, 2):
+            if i+1 < population_size:
+                crossover_point = np.random.randint(1, 2)
+                child1 = np.concatenate((parents[i][:crossover_point], parents[i+1][crossover_point:]))
+                child2 = np.concatenate((parents[i+1][:crossover_point], parents[i][crossover_point:]))
+                offspring.append(child1)
+                offspring.append(child2)
+        
+        # Mutation: apply random changes
+        offspring = np.array(offspring)
+        mutation_mask = np.random.rand(*offspring.shape) < mutation_rate
+        offspring += mutation_mask * np.random.uniform(-1, 1, offspring.shape)
+        
+        # Replace the old population with the new offspring
+        population = offspring
+        
+    # Return the best solution found
+    best_index = np.argmin([f(individual) for individual in population])
+    return population[best_index]  # Return the best point found (minimum point)
