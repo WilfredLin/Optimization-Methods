@@ -1,0 +1,33 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x[0]**2 + x[1]**2  # Example function
+
+# Simulated Annealing Method
+def simulated_annealing(starting_point, initial_temperature=1000, cooling_rate=0.99, max_iterations=1000):
+    current_point = np.array(starting_point)
+    current_energy = f(current_point)
+    temperature = initial_temperature
+    
+    for iteration in range(max_iterations):
+        # Generate a new candidate solution
+        candidate = current_point + np.random.uniform(-1, 1, size=current_point.shape)
+        candidate_energy = f(candidate)
+        
+        # Calculate the change in energy
+        energy_difference = candidate_energy - current_energy
+        
+        # Decide whether to accept the new solution
+        if energy_difference < 0 or np.random.rand() < np.exp(-energy_difference / temperature):
+            current_point = candidate
+            current_energy = candidate_energy
+        
+        # Cool down the temperature
+        temperature *= cooling_rate
+        
+        # Check for convergence (optional)
+        if temperature < 1e-8:
+            break
+            
+    return current_point  # Return the best point found (minimum point)
