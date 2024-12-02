@@ -1,0 +1,40 @@
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Split the dataset into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize Logistic Regression classifier
+log_reg = LogisticRegression(random_state=42)
+
+# Define the parameter grid for hyperparameter optimization
+param_grid = {
+    'penalty': ['l1', 'l2'],
+    'C': [0.01, 0.1, 1, 10, 100],
+    'solver': ['liblinear']  # 'liblinear' is used for L1 regularization
+}
+
+# Perform Grid Search with Cross-Validation
+grid_search = GridSearchCV(log_reg, param_grid, cv=5, scoring='accuracy')
+grid_search.fit(X_train, y_train)
+
+# Print the best parameters and the best score
+print("Best Hyperparameters:", grid_search.best_params_)
+print("Best Cross-Validation Score:", grid_search.best_score_)
+
+# Evaluate the model on the test set
+best_model = grid_search.best_estimator_
+y_pred = best_model.predict(X_test)
+test_accuracy = accuracy_score(y_test, y_pred)
+
+# Print the test accuracy
+print("Test Accuracy:", test_accuracy)
