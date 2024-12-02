@@ -1,0 +1,40 @@
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import RFE
+
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Feature Selection using SelectKBest
+selector = SelectKBest(score_func=f_classif, k=2)
+X_new = selector.fit_transform(X_train, y_train)
+
+# Display selected features
+selected_features = selector.get_support(indices=True)
+print("Selected features using SelectKBest:", selected_features)
+
+# Feature Selection using Recursive Feature Elimination (RFE)
+model = RandomForestClassifier()
+rfe = RFE(model, n_features_to_select=2)
+X_rfe = rfe.fit_transform(X_train, y_train)
+
+# Display selected features
+selected_features_rfe = rfe.get_support(indices=True)
+print("Selected features using RFE:", selected_features_rfe)
+
+# Train a model using the selected features from SelectKBest
+model.fit(X_new, y_train)
+print("Model trained on selected features using SelectKBest.")
+
+# Train a model using the selected features from RFE
+model.fit(X_rfe, y_train)
+print("Model trained on selected features using RFE.")
