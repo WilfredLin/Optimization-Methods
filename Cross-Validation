@@ -1,0 +1,21 @@
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Initialize Logistic Regression classifier
+log_reg = LogisticRegression(penalty='l2', random_state=42)
+
+# Perform cross-validation
+cv_scores = cross_val_score(log_reg, X, y, cv=5)
+
+# Print cross-validation scores
+print("Cross-Validation Scores:", cv_scores)
+print("Mean Cross-Validation Score:", np.mean(cv_scores))
