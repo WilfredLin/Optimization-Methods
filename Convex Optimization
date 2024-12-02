@@ -1,0 +1,22 @@
+def convex_optimization(c, A, b):
+    from scipy.optimize import linprog
+    import numpy as np
+
+    num_vars = len(c)
+    bounds = [(0, None) for _ in range(num_vars)]
+    
+    # Solve the linear programming problem
+    res = linprog(c, A_ub=A, b_ub=b, bounds=bounds, method='highs')
+    
+    if res.success:
+        x = res.x
+        print("Optimal solution found:", x)
+        print("Optimal value:", res.fun)
+    else:
+        print("No feasible solution found.")
+
+# Example usage
+c = [1, 2]  # Coefficients of the objective function
+A = [[-1, 1], [1, 2], [2, 1]]  # Coefficients of the constraints
+b = [1, 6, 6]  # Right-hand side of the constraints
+convex_optimization(c, A, b)
