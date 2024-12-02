@@ -1,0 +1,43 @@
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Create a directed graph
+G = nx.DiGraph()
+
+# Add edges along with their capacities
+edges = [
+    ('A', 'B', 10),
+    ('A', 'C', 5),
+    ('B', 'C', 15),
+    ('B', 'D', 10),
+    ('C', 'D', 10),
+    ('C', 'E', 5),
+    ('D', 'E', 10),
+    ('D', 'F', 10),
+    ('E', 'F', 10)
+]
+
+G.add_weighted_edges_from(edges)
+
+# Define source and sink
+source = 'A'
+sink = 'F'
+
+# Compute the maximum flow using the Edmonds-Karp algorithm
+max_flow_value, flow_dict = nx.maximum_flow(G, source, sink)
+
+# Print the results
+print(f"Maximum flow from {source} to {sink}: {max_flow_value}")
+print("Flow along the edges:")
+for u, v in flow_dict.items():
+    for dest, flow in v.items():
+        print(f"{u} -> {dest}: {flow}")
+
+# Draw the graph with flow values
+pos = nx.spring_layout(G)
+nx.draw(G, pos, with_labels=True, node_color='lightblue', arrows=True)
+edge_labels = nx.get_edge_attributes(G, 'weight')
+nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+plt.title('Network Flow Optimization')
+plt.show()
