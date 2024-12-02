@@ -1,0 +1,37 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x[0]**2 + x[1]**2  # Example function
+
+# Ant Colony Optimization Method
+def ant_colony_optimization(num_ants=30, max_iterations=100, alpha=1, beta=1, evaporation_rate=0.5):
+    # Initialize pheromone levels and best solution
+    pheromone_levels = np.ones((10, 10))  # Example grid size
+    best_solution = None
+    best_score = float('inf')
+    
+    for iteration in range(max_iterations):
+        solutions = []
+        scores = []
+        
+        for ant in range(num_ants):
+            # Generate a solution (randomly for simplicity)
+            solution = np.random.uniform(-10, 10, 2)
+            score = f(solution)
+            solutions.append(solution)
+            scores.append(score)
+            
+            # Update pheromone levels based on the score
+            pheromone_levels += 1.0 / (score + 1e-10)  # Avoid division by zero
+            
+        # Evaporate pheromones
+        pheromone_levels *= (1 - evaporation_rate)
+        
+        # Find the best solution from this iteration
+        current_best_index = np.argmin(scores)
+        if scores[current_best_index] < best_score:
+            best_score = scores[current_best_index]
+            best_solution = solutions[current_best_index]
+    
+    return best_solution  # Return the best point found (minimum point)
