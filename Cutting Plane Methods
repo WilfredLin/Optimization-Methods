@@ -1,0 +1,57 @@
+def cutting_plane_method(c, A, b):
+    from scipy.optimize import linprog
+
+    # Initial setup
+    num_vars = len(c)
+    constraints = A.tolist()
+    bounds = [(0, None) for _ in range(num_vars)]
+    
+    # Solve the linear programming relaxation
+    res = linprog(-c, A_ub=constraints, b_ub=b, bounds=bounds, method='highs')
+    
+    if res.success:
+        x = res.x
+        print("Optimal solution found:", x)
+        print("Optimal value:", -res.fun)
+    else:
+        print("No feasible solution found.")
+        return None
+
+    # Cutting plane iteration
+    while True:
+        # Check for integer solution
+        if all(x[i].is_integer() for i in range(num_vars)):
+            print("Integer solution found:", x)
+            print("Integer optimal value:", -res.fun)
+            break
+
+        # Generate cutting planes
+        cuts = []
+        for i in range(num_vars):
+            if not x[i].is_integer():
+                # Create a cut for the fractional variable
+                cut = [0] * num_vars
+                cut[i] = 1
+                cuts.append(cut)
+
+        # Add cuts to the constraints
+        for cut in cuts:
+            constraints.append(cut)
+            b.append(1)  # Assuming the cut is of the form x_i <= floor(x_i)
+
+        # Resolve the linear program with the new cuts
+        res = linprog(-c, A_ub=constraints, b_ub=b, bounds=bounds, method='highs')
+        
+        if res.success:
+            x = res.x
+            print("New optimal solution found:", x)
+            print("New optimal value:", -res.fun)
+        else:
+            print("No feasible solution found after adding cuts.")
+            break
+
+# Example usage
+c = [3, 2]  # Coefficients of the objective function
+A = [[1, 1], [2, 1], [1, 2]]  # Coefficients of the constraints
+b = [4, 6, 6]  # Right-hand side of the constraints
+cutting_plane_method(c, A, b)
