@@ -1,0 +1,53 @@
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Convert to DataFrame for easier manipulation
+df = pd.DataFrame(X, columns=iris.feature_names)
+df['target'] = y
+
+# Introduce some missing values for demonstration
+df.loc[5:10, 'sepal length (cm)'] = np.nan
+
+# Define features and target
+features = df.drop('target', axis=1)
+target = df['target']
+
+# Define numerical and categorical columns
+numerical_cols = features.select_dtypes(include=['float64', 'int']).columns.tolist()
+categorical_cols = []  # No categorical columns in the Iris dataset
+
+# Create preprocessing pipelines
+numerical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='mean')),
+    ('scaler', StandardScaler())
+])
+
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))
+])
+
+# Combine transformers into a single ColumnTransformer
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numerical_transformer, numerical_cols),
+        ('cat', categorical_transformer, categorical_cols)
+    ])
+
+# Preprocess the features
+X_processed = preprocessor.fit_transform(features)
+
+# Split the dataset into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X_processed, target, test_size=0.2, random_state=42)
+
+print("Preprocessing complete. Processed feature shape:", X_processed.shape)
