@@ -1,0 +1,25 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x ** 2
+
+# Define the derivative of the function
+def df(x):
+    return 2 * x
+
+# Gradient Descent Algorithm
+def gradient_descent(starting_point, learning_rate, num_iterations):
+    x = starting_point
+    for _ in range(num_iterations):
+        x -= learning_rate * df(x)
+    return x
+
+# Parameters
+starting_point = 10  # Starting point for the descent
+learning_rate = 0.1   # Learning rate
+num_iterations = 100   # Number of iterations
+
+# Run Gradient Descent
+minimum = gradient_descent(starting_point, learning_rate, num_iterations)
+print(f'The minimum point is at x = {minimum} and f(x) = {f(minimum)}')
