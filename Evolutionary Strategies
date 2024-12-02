@@ -1,0 +1,61 @@
+import numpy as np
+import random
+
+# Define the objective function: minimize the sum of squares
+def objective_function(solution):
+    return sum(x**2 for x in solution)
+
+# Function to generate a random solution
+def random_solution(dimensions):
+    return [random.uniform(-10, 10) for _ in range(dimensions)]
+
+# Evolutionary Strategies algorithm
+def evolutionary_strategy(dimensions, population_size, mutation_rate, max_generations):
+    # Initialize population
+    population = [random_solution(dimensions) for _ in range(population_size)]
+    
+    for generation in range(max_generations):
+        # Evaluate fitness
+        fitness = [objective_function(individual) for individual in population]
+        
+        # Select parents based on fitness (tournament selection)
+        parents = select_parents(population, fitness, population_size // 2)
+        
+        # Generate offspring through mutation
+        offspring = []
+        for parent in parents:
+            child = mutate(parent, mutation_rate)
+            offspring.append(child)
+        
+        # Create new population
+        population = parents + offspring
+    
+    # Evaluate final population
+    fitness = [objective_function(individual) for individual in population]
+    best_index = np.argmin(fitness)
+    
+    return population[best_index], fitness[best_index]
+
+# Function to select parents
+def select_parents(population, fitness, num_parents):
+    parents = []
+    for _ in range(num_parents):
+        tournament = random.sample(list(enumerate(fitness)), 3)
+        winner_index = min(tournament, key=lambda x: x[1])[0]
+        parents.append(population[winner_index])
+    return parents
+
+# Function to mutate a solution
+def mutate(solution, mutation_rate):
+    return [gene + random.uniform(-mutation_rate, mutation_rate) for gene in solution]
+
+# Example usage
+dimensions = 5
+population_size = 20
+mutation_rate = 0.5
+max_generations = 100
+
+best_solution, best_value = evolutionary_strategy(dimensions, population_size, mutation_rate, max_generations)
+
+print('Best solution:', best_solution)
+print('Best value:', best_value)
