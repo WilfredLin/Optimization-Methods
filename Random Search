@@ -1,0 +1,24 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x[0]**2 + x[1]**2  # Example function
+
+# Random Search Method
+def random_search(num_samples=100):
+    best_solution = None
+    best_score = float('inf')
+    
+    for _ in range(num_samples):
+        # Generate a random solution
+        candidate = np.random.uniform(-10, 10, 2)
+        
+        # Evaluate the candidate solution
+        candidate_score = f(candidate)
+        
+        # Update best solution if candidate is better
+        if candidate_score < best_score:
+            best_score = candidate_score
+            best_solution = candidate
+    
+    return best_solution  # Return the best point found (minimum point)
