@@ -1,0 +1,31 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x ** 2
+
+# Define the derivative of the function
+def df(x):
+    return 2 * x
+
+# Define the second derivative of the function
+def d2f(x):
+    return 2
+
+# Newton's Method Algorithm
+def newtons_method(starting_point, learning_rate, num_iterations):
+    x = starting_point
+    for _ in range(num_iterations):
+        gradient = df(x)  # Compute the gradient at x
+        hessian = d2f(x)  # Compute the hessian at x
+        x -= learning_rate * gradient / hessian  # Update x using Newton's method
+    return x
+
+# Parameters
+starting_point = 10  # Starting point for the descent
+learning_rate = 1    # Learning rate (typically set to 1 for Newton's Method)
+num_iterations = 100  # Number of iterations
+
+# Run Newton's Method
+minimum = newtons_method(starting_point, learning_rate, num_iterations)
+print(f'The minimum point is at x = {minimum} and f(x) = {f(minimum)}')
