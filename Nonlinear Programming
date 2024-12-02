@@ -1,0 +1,35 @@
+import numpy as np
+from scipy.optimize import minimize
+
+class NonlinearProgramming:
+    def __init__(self, objective_function, constraints=None, bounds=None):
+        self.objective_function = objective_function
+        self.constraints = constraints
+        self.bounds = bounds
+
+    def optimize(self, initial_guess):
+        result = minimize(self.objective_function, initial_guess, method='SLSQP', 
+                          constraints=self.constraints, bounds=self.bounds)
+        return result.x, result.fun  # Return optimal solution and objective value
+
+# Example usage
+if __name__ == "__main__":
+    # Define the objective function
+    def objective(x):
+        return x[0]**2 + x[1]**2  # Example: Minimize x^2 + y^2
+
+    # Define constraints
+    constraints = ({'type': 'eq', 'fun': lambda x: x[0] + x[1] - 1})  # Example: x + y = 1
+
+    # Define bounds
+    bounds = [(0, None), (0, None)]  # x >= 0, y >= 0
+
+    # Create an instance of the NonlinearProgramming class
+    nlp = NonlinearProgramming(objective_function=objective, constraints=constraints, bounds=bounds)
+
+    # Optimize starting from an initial guess
+    initial_guess = [0.5, 0.5]
+    solution, objective_value = nlp.optimize(initial_guess)
+
+    print("Optimal solution:", solution)
+    print("Objective value:", objective_value)
