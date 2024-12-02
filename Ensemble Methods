@@ -1,0 +1,31 @@
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
+from sklearn.metrics import accuracy_score
+
+# Load dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize individual classifiers
+rf_clf = RandomForestClassifier(n_estimators=100, random_state=42)
+gb_clf = GradientBoostingClassifier(n_estimators=100, random_state=42)
+
+# Create an ensemble classifier using Voting
+voting_clf = VotingClassifier(estimators=[('rf', rf_clf), ('gb', gb_clf)], voting='hard')
+
+# Fit the ensemble classifier
+voting_clf.fit(X_train, y_train)
+
+# Predict on the test set
+y_pred = voting_clf.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy of the ensemble model:", accuracy)
