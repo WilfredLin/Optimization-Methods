@@ -1,0 +1,45 @@
+import numpy as np
+
+# Define the function to minimize
+def f(x):
+    return x[0]**2 + x[1]**2  # Example function
+
+# Nelder-Mead Method
+def nelder_mead(starting_simplex, alpha=1.0, beta=0.5, gamma=2.0, tol=1e-6, max_iterations=1000):
+    simplex = np.array(starting_simplex)
+    num_vertices = simplex.shape[0]
+    
+    for iteration in range(max_iterations):
+        # Sort the simplex by function value
+        simplex = simplex[np.argsort([f(vertex) for vertex in simplex])]
+        
+        # Calculate the centroid of the best vertices
+        centroid = np.mean(simplex[:-1], axis=0)
+        
+        # Reflect the worst vertex
+        worst = simplex[-1]
+        reflected = centroid + alpha * (centroid - worst)
+        
+        if f(reflected) < f(simplex[0]):
+            # Expansion
+            expanded = centroid + gamma * (reflected - centroid)
+            if f(expanded) < f(reflected):
+                simplex[-1] = expanded
+            else:
+                simplex[-1] = reflected
+        elif f(reflected) < f(simplex[-2]):
+            simplex[-1] = reflected
+        else:
+            # Contraction
+            contracted = centroid - beta * (centroid - worst)
+            if f(contracted) < f(worst):
+                simplex[-1] = contracted
+            else:
+                # Shrink
+                simplex[1:] = simplex[0] + 0.5 * (simplex[1:] - simplex[0])
+        
+        # Check for convergence
+        if np.max(np.linalg.norm(simplex - simplex.mean(axis=0), axis=1)) < tol:
+            break
+            
+    return simplex[0]  # Return the best vertex (minimum point)
