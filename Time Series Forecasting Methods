@@ -1,0 +1,48 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
+# Generate a time series dataset
+np.random.seed(42)
+date_range = pd.date_range(start='2020-01-01', periods=100, freq='D')
+data = np.random.randn(100).cumsum() + 50  # Cumulative sum to simulate a trend
+time_series = pd.Series(data, index=date_range)
+
+# Split the dataset into training and test sets
+train_size = int(len(time_series) * 0.8)
+train, test = time_series[:train_size], time_series[train_size:]
+
+# Plot the time series
+plt.figure(figsize=(12, 6))
+plt.plot(time_series, label='Original Time Series')
+plt.axvline(x=train.index[-1], color='red', linestyle='--', label='Train/Test Split')
+plt.title('Time Series Data')
+plt.xlabel('Date')
+plt.ylabel('Value')
+plt.legend()
+plt.show()
+
+# ARIMA Model
+arima_model = ARIMA(train, order=(5, 1, 0))  # p, d, q parameters
+arima_fit = arima_model.fit()
+arima_forecast = arima_fit.forecast(steps=len(test))
+
+# Holt-Winters Exponential Smoothing Model
+hw_model = ExponentialSmoothing(train, trend='add', seasonal=None, seasonal_periods=None)
+hw_fit = hw_model.fit()
+hw_forecast = hw_fit.forecast(steps=len(test))
+
+# Plot the forecasts
+plt.figure(figsize=(12, 6))
+plt.plot(train, label='Train', color='blue')
+plt.plot(test.index, test, label='Test', color='orange')
+plt.plot(test.index, arima_forecast, label='ARIMA Forecast', color='green')
+plt.plot(test.index, hw_forecast, label='Holt-Winters Forecast', color='purple')
+plt.title('Time Series Forecasting')
+plt.xlabel('Date')
+plt.ylabel('Value')
+plt.legend()
+plt.show()
